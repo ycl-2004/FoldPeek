@@ -1,0 +1,495 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D10000000000000000000001 /* FoldPeekApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000001 /* FoldPeekApp.swift */; };
+		D10000000000000000000002 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000002 /* WelcomeView.swift */; };
+		D10000000000000000000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000003 /* Assets.xcassets */; };
+		E10000000000000000000001 /* FoldPeekPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000001 /* FoldPeekPreviewController.swift */; };
+		E10000000000000000000002 /* IndexedEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000002 /* IndexedEntry.swift */; };
+		E10000000000000000000003 /* DirectoryScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000003 /* DirectoryScanner.swift */; };
+		E10000000000000000000006 /* FilePreviewLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000007 /* FilePreviewLoader.swift */; };
+		E10000000000000000000007 /* FolderNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000008 /* FolderNode.swift */; };
+		E10000000000000000000008 /* PreviewPaneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000009 /* PreviewPaneView.swift */; };
+		E10000000000000000000009 /* PaperTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000A /* PaperTheme.swift */; };
+		E1000000000000000000000A /* PaperViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000B /* PaperViews.swift */; };
+		E1000000000000000000000B /* MetadataGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000C /* MetadataGridView.swift */; };
+		E1000000000000000000000C /* CodeHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000D /* CodeHighlighter.swift */; };
+		E1000000000000000000000D /* CodeTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000E /* CodeTextView.swift */; };
+		E1000000000000000000000E /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000F /* MarkdownRenderer.swift */; };
+		E10000000000000000000004 /* QuickLookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E20000000000000000000004 /* QuickLookUI.framework */; };
+		E10000000000000000000005 /* FoldPeekPreviewExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E30000000000000000000001 /* FoldPeekPreviewExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F10000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D90000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E60000000000000000000001;
+			remoteInfo = FoldPeekPreviewExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F20000000000000000000001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E10000000000000000000005 /* FoldPeekPreviewExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		D20000000000000000000001 /* FoldPeekApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldPeekApp.swift; sourceTree = "<group>"; };
+		D20000000000000000000002 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		D20000000000000000000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D20000000000000000000004 /* FoldPeekApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FoldPeekApp.entitlements; sourceTree = "<group>"; };
+		D30000000000000000000001 /* FoldPeek.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoldPeek.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E20000000000000000000001 /* FoldPeekPreviewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldPeekPreviewController.swift; sourceTree = "<group>"; };
+		E20000000000000000000002 /* IndexedEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexedEntry.swift; sourceTree = "<group>"; };
+		E20000000000000000000003 /* DirectoryScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryScanner.swift; sourceTree = "<group>"; };
+		E20000000000000000000007 /* FilePreviewLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreviewLoader.swift; sourceTree = "<group>"; };
+		E20000000000000000000008 /* FolderNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderNode.swift; sourceTree = "<group>"; };
+		E20000000000000000000009 /* PreviewPaneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPaneView.swift; sourceTree = "<group>"; };
+		E2000000000000000000000A /* PaperTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperTheme.swift; sourceTree = "<group>"; };
+		E2000000000000000000000B /* PaperViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperViews.swift; sourceTree = "<group>"; };
+		E2000000000000000000000C /* MetadataGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataGridView.swift; sourceTree = "<group>"; };
+		E2000000000000000000000D /* CodeHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeHighlighter.swift; sourceTree = "<group>"; };
+		E2000000000000000000000E /* CodeTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeTextView.swift; sourceTree = "<group>"; };
+		E2000000000000000000000F /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
+		E20000000000000000000004 /* QuickLookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookUI.framework; path = System/Library/Frameworks/QuickLookUI.framework; sourceTree = SDKROOT; };
+		E20000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E20000000000000000000006 /* FoldPeekPreviewExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FoldPeekPreviewExtension.entitlements; sourceTree = "<group>"; };
+		E30000000000000000000001 /* FoldPeekPreviewExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FoldPeekPreviewExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D40000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E40000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E10000000000000000000004 /* QuickLookUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D50000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				D50000000000000000000002 /* FoldPeekApp */,
+				E50000000000000000000001 /* FoldPeekPreviewExtension */,
+				D50000000000000000000003 /* Shared */,
+				D50000000000000000000004 /* Products */,
+				D50000000000000000000005 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		D50000000000000000000002 /* FoldPeekApp */ = {
+			isa = PBXGroup;
+			children = (
+				D20000000000000000000001 /* FoldPeekApp.swift */,
+				D20000000000000000000002 /* WelcomeView.swift */,
+				D20000000000000000000003 /* Assets.xcassets */,
+				D20000000000000000000004 /* FoldPeekApp.entitlements */,
+			);
+			path = FoldPeekApp;
+			sourceTree = "<group>";
+		};
+		D50000000000000000000003 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				E20000000000000000000002 /* IndexedEntry.swift */,
+				E20000000000000000000003 /* DirectoryScanner.swift */,
+				E20000000000000000000007 /* FilePreviewLoader.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		D50000000000000000000004 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D30000000000000000000001 /* FoldPeek.app */,
+				E30000000000000000000001 /* FoldPeekPreviewExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D50000000000000000000005 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E20000000000000000000004 /* QuickLookUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E50000000000000000000001 /* FoldPeekPreviewExtension */ = {
+			isa = PBXGroup;
+			children = (
+				E20000000000000000000001 /* FoldPeekPreviewController.swift */,
+				E20000000000000000000008 /* FolderNode.swift */,
+				E20000000000000000000009 /* PreviewPaneView.swift */,
+				E2000000000000000000000A /* PaperTheme.swift */,
+				E2000000000000000000000B /* PaperViews.swift */,
+				E2000000000000000000000C /* MetadataGridView.swift */,
+				E2000000000000000000000D /* CodeHighlighter.swift */,
+				E2000000000000000000000E /* CodeTextView.swift */,
+				E2000000000000000000000F /* MarkdownRenderer.swift */,
+				E20000000000000000000005 /* Info.plist */,
+				E20000000000000000000006 /* FoldPeekPreviewExtension.entitlements */,
+			);
+			path = FoldPeekPreviewExtension;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D60000000000000000000001 /* FoldPeek */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D80000000000000000000003 /* Build configuration list for PBXNativeTarget "FoldPeek" */;
+			buildPhases = (
+				D70000000000000000000001 /* Sources */,
+				D40000000000000000000001 /* Frameworks */,
+				D70000000000000000000002 /* Resources */,
+				F20000000000000000000001 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F30000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = FoldPeek;
+			productName = FoldPeek;
+			productReference = D30000000000000000000001 /* FoldPeek.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E60000000000000000000001 /* FoldPeekPreviewExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E80000000000000000000001 /* Build configuration list for PBXNativeTarget "FoldPeekPreviewExtension" */;
+			buildPhases = (
+				E70000000000000000000001 /* Sources */,
+				E40000000000000000000001 /* Frameworks */,
+				E70000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FoldPeekPreviewExtension;
+			productName = FoldPeekPreviewExtension;
+			productReference = E30000000000000000000001 /* FoldPeekPreviewExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D90000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					D60000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					E60000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = D80000000000000000000001 /* Build configuration list for PBXProject "FoldPeek" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D50000000000000000000001;
+			productRefGroup = D50000000000000000000004 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D60000000000000000000001 /* FoldPeek */,
+				E60000000000000000000001 /* FoldPeekPreviewExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D70000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D10000000000000000000003 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E70000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D70000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D10000000000000000000001 /* FoldPeekApp.swift in Sources */,
+				D10000000000000000000002 /* WelcomeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E70000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E10000000000000000000001 /* FoldPeekPreviewController.swift in Sources */,
+				E10000000000000000000002 /* IndexedEntry.swift in Sources */,
+				E10000000000000000000003 /* DirectoryScanner.swift in Sources */,
+				E10000000000000000000006 /* FilePreviewLoader.swift in Sources */,
+				E10000000000000000000007 /* FolderNode.swift in Sources */,
+				E10000000000000000000008 /* PreviewPaneView.swift in Sources */,
+				E10000000000000000000009 /* PaperTheme.swift in Sources */,
+				E1000000000000000000000A /* PaperViews.swift in Sources */,
+				E1000000000000000000000B /* MetadataGridView.swift in Sources */,
+				E1000000000000000000000C /* CodeHighlighter.swift in Sources */,
+				E1000000000000000000000D /* CodeTextView.swift in Sources */,
+				E1000000000000000000000E /* MarkdownRenderer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F30000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E60000000000000000000001 /* FoldPeekPreviewExtension */;
+			targetProxy = F10000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		DB0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DB0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		DB0000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FoldPeekApp/FoldPeekApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = FoldPeek;
+				INFOPLIST_KEY_CFBundleName = FoldPeek;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yichenlin.foldpeek;
+				PRODUCT_NAME = FoldPeek;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DB0000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FoldPeekApp/FoldPeekApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = FoldPeek;
+				INFOPLIST_KEY_CFBundleName = FoldPeek;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yichenlin.foldpeek;
+				PRODUCT_NAME = FoldPeek;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		EB0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = FoldPeekPreviewExtension/FoldPeekPreviewExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FoldPeekPreviewExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yichenlin.foldpeek.preview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		EB0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = FoldPeekPreviewExtension/FoldPeekPreviewExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FoldPeekPreviewExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yichenlin.foldpeek.preview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D80000000000000000000001 /* Build configuration list for PBXProject "FoldPeek" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB0000000000000000000001 /* Debug */,
+				DB0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D80000000000000000000003 /* Build configuration list for PBXNativeTarget "FoldPeek" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB0000000000000000000003 /* Debug */,
+				DB0000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E80000000000000000000001 /* Build configuration list for PBXNativeTarget "FoldPeekPreviewExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB0000000000000000000001 /* Debug */,
+				EB0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D90000000000000000000001 /* Project object */;
+}

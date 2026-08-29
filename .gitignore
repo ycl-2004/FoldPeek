@@ -1,0 +1,21 @@
+# Xcode output and user state
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+*.dSYM
+*.dSYM.zip
+
+# macOS metadata
+.DS_Store
+.AppleDouble
+._*
+
+# Distribution output
+dist/
+
+# Unrelated backups that landed in this directory
+.port-cleanup-backup/
+
+# Fable workflow scratch (not part of this project)
+.fable/

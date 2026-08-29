@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "foldpeek-mark@1x.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "foldpeek-mark@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "author" : "YC",
+    "version" : 1
+  },
+  "properties" : {
+    "template-rendering-intent" : "original"
+  }
+}
