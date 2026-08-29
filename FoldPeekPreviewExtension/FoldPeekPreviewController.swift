@@ -3,6 +3,7 @@ import QuickLookUI
 
 final class FoldPeekPreviewController: NSViewController, QLPreviewingController {
     private static let indexColumn = NSUserInterfaceItemIdentifier("index")
+    private static let headingColumn = NSUserInterfaceItemIdentifier("heading")
 
     // Index pane
     private let indexPane = NSView()
@@ -15,6 +16,7 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
     private let searchIcon = NSImageView()
     private let searchField = NSTextField(string: "")
     private let searchRule = NSView()
+    private let legend = CategoryLegendView()
     private let outlineView = IndexOutlineView()
     private let outlineScrollView = NSScrollView()
     private let footerRule = NSView()
@@ -26,7 +28,8 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
     private let previewPane = PreviewPaneView()
 
     private var rootNodes: [FolderNode] = []
-    private var visibleRootNodes: [FolderNode] = []
+    private var groups: [IndexGroup] = []
+    private var visibleGroups: [IndexGroup] = []
     private var budget = FolderTreeBudget()
     private var previewTask: Task<Void, Never>?
     private var filterText = ""
@@ -87,7 +90,8 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
             budget = FolderTreeBudget()
             budget.consume(loadResult.items.count)
             rootNodes = loadResult.items.map { FolderNode(item: $0, depth: 0) }
-            visibleRootNodes = rootNodes
+            groups = IndexGroup.group(rootNodes)
+            visibleGroups = groups
             filterText = ""
             searchField.stringValue = ""
             budgetNote = Self.note(for: loadResult)
@@ -99,6 +103,8 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
             emptyLabel.isHidden = !rootNodes.isEmpty
             outlineView.isHidden = rootNodes.isEmpty
             outlineView.reloadData()
+            expandAllGroups()
+            updateLegend()
             updateFooter()
             previewPane.showEmptySelection()
         }
@@ -125,23 +131,30 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
     // MARK: - Filtering
 
     private func applyFilter() {
-        if filterText.isEmpty {
-            rootNodes.forEach { $0.applyFilter("") }
-            visibleRootNodes = rootNodes
-        } else {
-            visibleRootNodes = rootNodes.filter { $0.applyFilter(filterText) }
-        }
+        visibleGroups = filterText.isEmpty
+            ? { groups.forEach { $0.applyFilter("") }; return groups }()
+            : groups.filter { $0.applyFilter(filterText) }
 
         outlineView.reloadData()
+        expandAllGroups()
         if !filterText.isEmpty {
-            expandMatches(in: visibleRootNodes)
+            visibleGroups.forEach { expandMatches(in: $0.visibleNodes) }
         }
-        emptyLabel.isHidden = !visibleRootNodes.isEmpty || rootNodes.isEmpty
+        emptyLabel.isHidden = !visibleGroups.isEmpty || rootNodes.isEmpty
         if !rootNodes.isEmpty {
-            emptyLabel.stringValue = visibleRootNodes.isEmpty ? "没有匹配的条目。" : "此文件夹为空。"
-            outlineView.isHidden = visibleRootNodes.isEmpty
+            emptyLabel.stringValue = visibleGroups.isEmpty ? "没有匹配的条目。" : "此文件夹为空。"
+            outlineView.isHidden = visibleGroups.isEmpty
         }
+        updateLegend()
         updateFooter()
+    }
+
+    /// Headings always start open. A collapsed group is a group you forget you
+    /// have, and the point of the grouping is to show everything at once.
+    private func expandAllGroups() {
+        for group in visibleGroups {
+            outlineView.expandItem(group)
+        }
     }
 
     /// Opens the folders that survived the filter. Every node here is already
@@ -154,13 +167,15 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
     }
 
     private func updateFooter() {
-        let folders = visibleRootNodes.filter(\.item.isDirectory).count
-        let files = visibleRootNodes.count - folders
+        let visibleNodes = visibleGroups.flatMap(\.visibleNodes)
+        let folders = visibleNodes.filter(\.item.isDirectory).count
+        let files = visibleNodes.count - folders
         let deepest = rootNodes.map(\.deepestLoadedDepth).max() ?? 0
 
         var parts = [
             "\(folders) folder\(folders == 1 ? "" : "s")",
             "\(files) file\(files == 1 ? "" : "s")",
+            "\(visibleGroups.count) group\(visibleGroups.count == 1 ? "" : "s")",
             "depth \(deepest)/\(FolderNode.maximumDepth)"
         ]
         if let budgetNote { parts.append(budgetNote) }
@@ -174,8 +189,19 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
     /// walk a tree is needless precision work.
     @objc private func handleIndexClick() {
         let row = outlineView.clickedRow
-        guard row >= 0,
-              let node = outlineView.item(atRow: row) as? FolderNode,
+        guard row >= 0 else { return }
+
+        // A heading is a fold control for its own group.
+        if let group = outlineView.item(atRow: row) as? IndexGroup {
+            if outlineView.isItemExpanded(group) {
+                outlineView.collapseItem(group)
+            } else {
+                outlineView.expandItem(group)
+            }
+            return
+        }
+
+        guard let node = outlineView.item(atRow: row) as? FolderNode,
               node.item.isDirectory,
               !node.item.isSymbolicLink
         else { return }
@@ -218,9 +244,7 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
         let item = node.item
         previewPane.showLoading()
         previewTask = Task { [weak self] in
-            let result = await Task.detached(priority: .userInitiated) {
-                FilePreviewLoader.load(url: item.url)
-            }.value
+            let result = await FilePreviewLoader.load(url: item.url)
             guard !Task.isCancelled else { return }
             await MainActor.run {
                 guard let self, self.outlineView.selectedRow == row else { return }
@@ -244,7 +268,7 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
         outlineView.allowsMultipleSelection = false
         outlineView.rowHeight = 34
         outlineView.intercellSpacing = NSSize(width: 0, height: 0)
-        outlineView.indentationPerLevel = 16
+        outlineView.indentationPerLevel = 13
         outlineView.autoresizesOutlineColumn = false
         outlineView.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
 
@@ -287,6 +311,7 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
         sectionCount.alignment = .right
 
         configureSearchField()
+        configureLegend()
 
         for rule in [searchRule, footerRule] {
             rule.translatesAutoresizingMaskIntoConstraints = false
@@ -314,7 +339,7 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
         for subview in [
             identityRule, identityLabel, pathLabel,
             sectionNumber, sectionTitle, sectionCount,
-            searchIcon, searchField, searchRule,
+            searchIcon, searchField, searchRule, legend,
             outlineScrollView, footerRule, footerLabel, emptyLabel
         ] {
             indexPane.addSubview(subview)
@@ -376,7 +401,11 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
             searchRule.trailingAnchor.constraint(equalTo: indexPane.trailingAnchor, constant: -24),
             searchRule.heightAnchor.constraint(equalToConstant: 1),
 
-            outlineScrollView.topAnchor.constraint(equalTo: searchRule.bottomAnchor, constant: 6),
+            legend.topAnchor.constraint(equalTo: searchRule.bottomAnchor, constant: 10),
+            legend.leadingAnchor.constraint(equalTo: indexPane.leadingAnchor, constant: 24),
+            legend.trailingAnchor.constraint(equalTo: indexPane.trailingAnchor, constant: -24),
+
+            outlineScrollView.topAnchor.constraint(equalTo: legend.bottomAnchor, constant: 10),
             outlineScrollView.leadingAnchor.constraint(equalTo: indexPane.leadingAnchor, constant: 10),
             outlineScrollView.trailingAnchor.constraint(equalTo: indexPane.trailingAnchor, constant: -10),
             outlineScrollView.bottomAnchor.constraint(equalTo: footerRule.topAnchor, constant: -6),
@@ -394,6 +423,40 @@ final class FoldPeekPreviewController: NSViewController, QLPreviewingController 
             emptyLabel.centerYAnchor.constraint(equalTo: outlineScrollView.centerYAnchor),
             emptyLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 260)
         ])
+    }
+
+    private func configureLegend() {
+        legend.translatesAutoresizingMaskIntoConstraints = false
+        legend.onSelect = { [weak self] category in
+            self?.jump(to: category)
+        }
+    }
+
+    /// Scrolls a group's heading to the top of the list rather than merely into
+    /// view — landing on the heading is what makes the jump legible.
+    private func jump(to category: FileCategory) {
+        guard let group = visibleGroups.first(where: { $0.category == category }) else { return }
+        outlineView.expandItem(group)
+
+        let row = outlineView.row(forItem: group)
+        guard row >= 0 else { return }
+
+        let clipView = outlineScrollView.contentView
+        let maximumY = max(0, outlineView.bounds.height - clipView.bounds.height)
+        let target = min(max(0, outlineView.rect(ofRow: row).minY - 4), maximumY)
+
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.22
+            context.allowsImplicitAnimation = true
+            clipView.animator().setBoundsOrigin(NSPoint(x: 0, y: target))
+        } completionHandler: { [weak self] in
+            guard let self else { return }
+            self.outlineScrollView.reflectScrolledClipView(clipView)
+        }
+    }
+
+    private func updateLegend() {
+        legend.update(visibleGroups.map { ($0.category, $0.visibleNodes.count) })
     }
 
     private func configureSearchField() {
@@ -429,20 +492,33 @@ extension FoldPeekPreviewController: NSTextFieldDelegate {
 
 extension FoldPeekPreviewController: NSOutlineViewDataSource, NSOutlineViewDelegate {
     func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
-        guard let node = item as? FolderNode else { return visibleRootNodes.count }
+        if let group = item as? IndexGroup { return group.visibleNodes.count }
+        guard let node = item as? FolderNode else { return visibleGroups.count }
         return node.visibleChildren.count
     }
 
     func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
-        guard let node = item as? FolderNode else { return visibleRootNodes[index] }
+        if let group = item as? IndexGroup { return group.visibleNodes[index] }
+        guard let node = item as? FolderNode else { return visibleGroups[index] }
         return node.visibleChildren[index]
     }
 
     func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
+        if item is IndexGroup { return true }
         guard let node = item as? FolderNode else { return false }
         // Before loading, any eligible directory offers a triangle; afterwards
         // the real child count decides, so empty folders stop offering one.
         return node.isLoaded ? !node.visibleChildren.isEmpty : node.isExpandable
+    }
+
+    /// A heading is a label, not a destination — selecting it would put the
+    /// inspector in a state that describes nothing.
+    func outlineView(_ outlineView: NSOutlineView, shouldSelectItem item: Any) -> Bool {
+        !(item is IndexGroup)
+    }
+
+    func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
+        item is IndexGroup ? 30 : 34
     }
 
     func outlineViewItemWillExpand(_ notification: Notification) {
@@ -479,19 +555,8 @@ extension FoldPeekPreviewController: NSOutlineViewDataSource, NSOutlineViewDeleg
 
     func outlineView(_ outlineView: NSOutlineView, rowViewForItem item: Any) -> NSTableRowView? {
         let rowView = IndexRowView()
-        if let node = item as? FolderNode {
-            rowView.showsTopSeparator = isFirstRootFile(node)
-        }
+        rowView.isHeading = item is IndexGroup
         return rowView
-    }
-
-    /// The hairline that divides the folder group from the file group.
-    private func isFirstRootFile(_ node: FolderNode) -> Bool {
-        guard !node.item.isDirectory,
-              let index = visibleRootNodes.firstIndex(where: { $0 === node }),
-              index > 0
-        else { return false }
-        return visibleRootNodes[index - 1].item.isDirectory
     }
 
     func outlineView(
@@ -499,6 +564,17 @@ extension FoldPeekPreviewController: NSOutlineViewDataSource, NSOutlineViewDeleg
         viewFor tableColumn: NSTableColumn?,
         item: Any
     ) -> NSView? {
+        if let group = item as? IndexGroup {
+            let header = (outlineView.makeView(withIdentifier: Self.headingColumn, owner: self)
+                as? IndexGroupHeaderView) ?? {
+                    let created = IndexGroupHeaderView()
+                    created.identifier = Self.headingColumn
+                    return created
+                }()
+            header.update(category: group.category, count: group.visibleNodes.count)
+            return header
+        }
+
         guard let node = item as? FolderNode else { return nil }
         let entry = node.item
 
@@ -511,24 +587,31 @@ extension FoldPeekPreviewController: NSOutlineViewDataSource, NSOutlineViewDeleg
 
         cell.nameLabel.stringValue = entry.name
 
+        let category = FileCategory.of(entry)
         if entry.isSymbolicLink {
-            cell.showFolder(symbol: "link", tint: PaperTheme.inkFaint)
+            cell.showFolder(symbol: category.symbol, tint: category.color)
             cell.trailingLabel.stringValue = entry.shortModificationDate
         } else if entry.isDirectory {
             let isOpen = outlineView.isItemExpanded(node)
-            cell.showFolder(symbol: isOpen ? "folder.fill" : "folder", tint: PaperTheme.denim)
+            cell.showFolder(symbol: isOpen ? "folder.fill" : "folder", tint: category.color)
             cell.trailingLabel.stringValue = entry.shortModificationDate
+        } else if let mark = Self.typeMark(for: entry) {
+            cell.showType(mark, color: category.color)
+            cell.trailingLabel.stringValue = entry.formattedSize
         } else {
-            cell.showType(Self.typeMark(for: entry))
+            // No extension short enough to print, so the category's glyph
+            // carries the colour instead of a tag.
+            cell.showFolder(symbol: category.symbol, tint: category.color)
             cell.trailingLabel.stringValue = entry.formattedSize
         }
 
         return cell
     }
 
-    private static func typeMark(for item: IndexedEntry) -> String {
+    /// The extension, when it is short enough to set in the 26 pt chip.
+    private static func typeMark(for item: IndexedEntry) -> String? {
         let ext = item.url.pathExtension.uppercased()
-        guard !ext.isEmpty, ext.count <= 4 else { return "•" }
+        guard !ext.isEmpty, ext.count <= 4 else { return nil }
         return ext
     }
 }

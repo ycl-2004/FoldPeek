@@ -16,6 +16,8 @@ final class PreviewPaneView: NSView {
     private var lineRuler: LineNumberRulerView?
     private let imageScrollView = NSScrollView()
     private let imageView = NSImageView()
+    private let pdfView = PaperPDFView()
+    private let renderedPage = RenderedPageView()
 
     override var isFlipped: Bool { true }
 
@@ -41,6 +43,7 @@ final class PreviewPaneView: NSView {
 
     func showFolder(_ item: IndexedEntry, childCount: Int?, isExpanded: Bool = false) {
         titleLabel.stringValue = item.name
+        badge.accent = FileCategory.of(item).color
         badge.text = item.isSymbolicLink ? "LINK" : "DIR"
         metaLabel.stringValue = [
             item.isSymbolicLink ? "Symbolic Link" : "Folder",
@@ -69,8 +72,10 @@ final class PreviewPaneView: NSView {
     }
 
     func showFile(_ item: IndexedEntry, result: FilePreviewResult) {
+        let category = FileCategory.of(item)
         titleLabel.stringValue = item.name
         badge.text = Self.badgeText(for: item)
+        badge.accent = category.color
 
         var parts: [String] = [result.typeDescription]
         if let byteSize = result.byteSize {
@@ -98,6 +103,13 @@ final class PreviewPaneView: NSView {
                 parts.append("仅显示前 \(cap)")
             }
 
+        case let .richText(document, isTruncated):
+            setVisibleContent(.text)
+            applyProse(document)
+            if isTruncated {
+                parts.append("仅显示前 \(RichDocumentReader.maximumCharacters) 字")
+            }
+
         case let .image(image, pixelWidth, pixelHeight):
             setVisibleContent(.image)
             imageView.image = image
@@ -105,8 +117,18 @@ final class PreviewPaneView: NSView {
                 parts.append("\(pixelWidth) × \(pixelHeight)")
             }
 
+        case let .pdf(document, pageCount):
+            setVisibleContent(.pdf)
+            pdfView.showDocument(document)
+            parts.append("\(pageCount) 页")
+
+        case let .rendered(image, note):
+            setVisibleContent(.rendered)
+            renderedPage.image = image
+            parts.append(note)
+
         case let .unavailable(reason):
-            presentPlaceholder(symbol: "eye.slash", message: reason)
+            presentPlaceholder(symbol: "eye.slash", message: reason, tint: category.color)
         }
 
         metaLabel.stringValue = parts.joined(separator: "  ·  ")
@@ -119,14 +141,18 @@ final class PreviewPaneView: NSView {
     // MARK: - Content switching
 
     private enum VisibleContent {
-        case placeholder, text, image
+        case placeholder, text, image, pdf, rendered
     }
 
-    private func presentPlaceholder(symbol: String, message: String) {
+    private func presentPlaceholder(
+        symbol: String,
+        message: String,
+        tint: NSColor = PaperTheme.denim
+    ) {
         setVisibleContent(.placeholder)
         placeholderIcon.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)?
             .withSymbolConfiguration(.init(pointSize: 30, weight: .light))
-        placeholderIcon.contentTintColor = PaperTheme.denim
+        placeholderIcon.contentTintColor = tint
         placeholderLabel.stringValue = message
     }
 
@@ -151,6 +177,14 @@ final class PreviewPaneView: NSView {
         textView.scroll(.zero)
     }
 
+    /// A document that arrived already typeset — Word, RTF, OpenDocument —
+    /// takes the same prose treatment Markdown does.
+    private func applyProse(_ document: NSAttributedString) {
+        setProseMode(true)
+        textView.textStorage?.setAttributedString(document)
+        textView.scroll(.zero)
+    }
+
     /// Prose and source want opposite treatments. Source keeps the gutter, the
     /// guides, and the ruled grain. Prose drops all three — ruled paper behind
     /// running text is what makes a long document hard to read — and is held to
@@ -169,10 +203,21 @@ final class PreviewPaneView: NSView {
         placeholderStack.isHidden = content != .placeholder
         textScrollView.isHidden = content != .text
         imageScrollView.isHidden = content != .image
+        pdfView.isHidden = content != .pdf
+        renderedPage.isHidden = content != .rendered
 
-        // Releases whichever payload is no longer on screen.
+        // A PDF and a rendered page carry their own paper; ruling the card
+        // behind them would print one sheet on top of another. Prose turns the
+        // grain off separately, after this runs.
+        card.drawsGrain = content != .pdf && content != .rendered
+
+        // Releases whichever payload is no longer on screen. A PDF is the
+        // heaviest of them: PDFKit maps the file and caches rendered pages for
+        // as long as the document is attached.
         if content != .text { textView.string = "" }
         if content != .image { imageView.image = nil }
+        if content != .pdf { pdfView.unload() }
+        if content != .rendered { renderedPage.image = nil }
     }
 
     private static func badgeText(for item: IndexedEntry) -> String {
@@ -212,10 +257,14 @@ final class PreviewPaneView: NSView {
         configurePlaceholder()
         configureTextView()
         configureImageView()
+        pdfView.translatesAutoresizingMaskIntoConstraints = false
+        renderedPage.translatesAutoresizingMaskIntoConstraints = false
 
         card.addSubview(placeholderStack)
         card.addSubview(textScrollView)
         card.addSubview(imageScrollView)
+        card.addSubview(pdfView)
+        card.addSubview(renderedPage)
 
         addSubview(titleLabel)
         addSubview(badge)
@@ -250,7 +299,7 @@ final class PreviewPaneView: NSView {
             placeholderStack.trailingAnchor.constraint(lessThanOrEqualTo: card.trailingAnchor, constant: -24)
         ])
 
-        for content in [textScrollView, imageScrollView] {
+        for content in [textScrollView, imageScrollView, pdfView, renderedPage] as [NSView] {
             NSLayoutConstraint.activate([
                 content.topAnchor.constraint(equalTo: card.topAnchor, constant: 10),
                 content.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 10),

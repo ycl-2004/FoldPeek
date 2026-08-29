@@ -52,6 +52,13 @@ codesign --force --sign - -o runtime \
 echo "==> Verifying"
 codesign --verify --deep --strict "$APP"
 
+# LaunchServices scans the whole disk, so an app left inside the repository is
+# registered alongside the installed one. Two copies of the same extension is
+# how the Quick Look panel ends up showing a stale build, or none at all. This
+# copy is unregistered as soon as it is built; the ZIP below is the deliverable.
+"/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister" \
+  -u "$APP" 2>/dev/null || true
+
 host_bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Contents/Info.plist")
 ext_bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APPEX/Contents/Info.plist")
 host_archs=$(lipo -archs "$APP/Contents/MacOS/FoldPeek")
@@ -63,7 +70,7 @@ echo "    extension bundle ID:    $ext_bundle_id"
 echo "    host architectures:     $host_archs"
 echo "    extension architectures: $ext_archs"
 echo "    host entitlements:      $host_entitlements (expected 1)"
-echo "    extension entitlements: $ext_entitlements (expected 2)"
+echo "    extension entitlements: $ext_entitlements (expected 3)"
 
 if [[ "$host_bundle_id" != "com.yichenlin.foldpeek" \
   || "$ext_bundle_id" != "com.yichenlin.foldpeek.preview" ]]; then
@@ -77,8 +84,16 @@ if [[ "$host_archs" != *arm64* || "$host_archs" != *x86_64* \
   exit 1
 fi
 
-if [[ "$host_entitlements" != "1" || "$ext_entitlements" != "2" ]]; then
+if [[ "$host_entitlements" != "1" || "$ext_entitlements" != "3" ]]; then
   echo "Unexpected entitlement count — refusing to package." >&2
+  exit 1
+fi
+
+# The extension's third entitlement is a mach-lookup exception, and it must name
+# the thumbnail service and nothing else. A count alone would not catch a
+# different service being added.
+if ! codesign -d --entitlements - "$APPEX" 2>&1 | grep -q 'com.apple.quicklook.ThumbnailsAgent'; then
+  echo "Extension is missing the thumbnail-service exception — refusing to package." >&2
   exit 1
 fi
 

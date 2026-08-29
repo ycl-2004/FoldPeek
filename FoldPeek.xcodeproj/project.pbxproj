@@ -22,6 +22,12 @@
 		E1000000000000000000000C /* CodeHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000D /* CodeHighlighter.swift */; };
 		E1000000000000000000000D /* CodeTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000E /* CodeTextView.swift */; };
 		E1000000000000000000000E /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000F /* MarkdownRenderer.swift */; };
+		E1000000000000000000000F /* RichDocumentReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000010 /* RichDocumentReader.swift */; };
+		E10000000000000000000010 /* SystemPageRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000011 /* SystemPageRenderer.swift */; };
+		E10000000000000000000011 /* DocumentPaneViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000012 /* DocumentPaneViews.swift */; };
+		E10000000000000000000012 /* FileCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000013 /* FileCategory.swift */; };
+		E10000000000000000000013 /* ContainerPreviewReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000014 /* ContainerPreviewReader.swift */; };
+		E10000000000000000000015 /* PreviewLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000016 /* PreviewLog.swift */; };
 		E10000000000000000000004 /* QuickLookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E20000000000000000000004 /* QuickLookUI.framework */; };
 		E10000000000000000000005 /* FoldPeekPreviewExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E30000000000000000000001 /* FoldPeekPreviewExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -68,6 +74,12 @@
 		E2000000000000000000000D /* CodeHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeHighlighter.swift; sourceTree = "<group>"; };
 		E2000000000000000000000E /* CodeTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeTextView.swift; sourceTree = "<group>"; };
 		E2000000000000000000000F /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
+		E20000000000000000000010 /* RichDocumentReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichDocumentReader.swift; sourceTree = "<group>"; };
+		E20000000000000000000011 /* SystemPageRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemPageRenderer.swift; sourceTree = "<group>"; };
+		E20000000000000000000012 /* DocumentPaneViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPaneViews.swift; sourceTree = "<group>"; };
+		E20000000000000000000013 /* FileCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCategory.swift; sourceTree = "<group>"; };
+		E20000000000000000000014 /* ContainerPreviewReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerPreviewReader.swift; sourceTree = "<group>"; };
+		E20000000000000000000016 /* PreviewLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewLog.swift; sourceTree = "<group>"; };
 		E20000000000000000000004 /* QuickLookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookUI.framework; path = System/Library/Frameworks/QuickLookUI.framework; sourceTree = SDKROOT; };
 		E20000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E20000000000000000000006 /* FoldPeekPreviewExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FoldPeekPreviewExtension.entitlements; sourceTree = "<group>"; };
@@ -121,6 +133,11 @@
 				E20000000000000000000002 /* IndexedEntry.swift */,
 				E20000000000000000000003 /* DirectoryScanner.swift */,
 				E20000000000000000000007 /* FilePreviewLoader.swift */,
+				E20000000000000000000010 /* RichDocumentReader.swift */,
+				E20000000000000000000011 /* SystemPageRenderer.swift */,
+				E20000000000000000000013 /* FileCategory.swift */,
+				E20000000000000000000014 /* ContainerPreviewReader.swift */,
+				E20000000000000000000016 /* PreviewLog.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -154,6 +171,7 @@
 				E2000000000000000000000D /* CodeHighlighter.swift */,
 				E2000000000000000000000E /* CodeTextView.swift */,
 				E2000000000000000000000F /* MarkdownRenderer.swift */,
+				E20000000000000000000012 /* DocumentPaneViews.swift */,
 				E20000000000000000000005 /* Info.plist */,
 				E20000000000000000000006 /* FoldPeekPreviewExtension.entitlements */,
 			);
@@ -280,6 +298,12 @@
 				E1000000000000000000000C /* CodeHighlighter.swift in Sources */,
 				E1000000000000000000000D /* CodeTextView.swift in Sources */,
 				E1000000000000000000000E /* MarkdownRenderer.swift in Sources */,
+				E1000000000000000000000F /* RichDocumentReader.swift in Sources */,
+				E10000000000000000000010 /* SystemPageRenderer.swift in Sources */,
+				E10000000000000000000011 /* DocumentPaneViews.swift in Sources */,
+				E10000000000000000000012 /* FileCategory.swift in Sources */,
+				E10000000000000000000013 /* ContainerPreviewReader.swift in Sources */,
+				E10000000000000000000015 /* PreviewLog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

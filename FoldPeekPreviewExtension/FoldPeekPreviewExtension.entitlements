@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
 <!-- FoldPeek Quick Look preview: sandboxed, user-selected files are read-only. -->
 <dict>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
 	<key>com.apple.security.files.user-selected.read-only</key>
 	<true/>
+	<!--
+	  One outbound connection, to Apple's own thumbnail service.
+
+	  An app extension's sandbox is stricter than an app's, and it denies the
+	  XPC connection QLThumbnailGenerator needs: every request fails with
+	  NSXPCConnectionInvalid (4099) before a file is ever considered. Without
+	  this exception, PowerPoint, Keynote, and legacy Office documents that
+	  carry no embedded preview cannot be shown at all.
+
+	  The exception names exactly one service and grants nothing else. It is not
+	  network access, and it does not widen the file access above.
+	-->
+	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+	<array>
+		<string>com.apple.quicklook.ThumbnailsAgent</string>
+	</array>
 </dict>
 </plist>

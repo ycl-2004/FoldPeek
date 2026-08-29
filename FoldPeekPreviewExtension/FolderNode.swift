@@ -20,6 +20,49 @@ final class FolderTreeBudget {
     }
 }
 
+/// One heading in the index, holding the root-level rows of a single category.
+///
+/// Grouping applies to the previewed folder's own contents only. Expanding a
+/// folder still lists its children in the plain folders-then-names order, so a
+/// deep tree never stacks headings inside headings.
+final class IndexGroup {
+    let category: FileCategory
+    let nodes: [FolderNode]
+    /// Nodes surviving the current filter — what the outline view shows.
+    private(set) var visibleNodes: [FolderNode]
+
+    init(category: FileCategory, nodes: [FolderNode]) {
+        self.category = category
+        self.nodes = nodes
+        visibleNodes = nodes
+    }
+
+    /// Partitions already-sorted rows into headed groups, dropping the empties.
+    /// The scanner's order is preserved inside each group.
+    static func group(_ nodes: [FolderNode]) -> [IndexGroup] {
+        var buckets: [FileCategory: [FolderNode]] = [:]
+        for node in nodes {
+            buckets[FileCategory.of(node.item), default: []].append(node)
+        }
+        return FileCategory.allCases.compactMap { category in
+            guard let members = buckets[category], !members.isEmpty else { return nil }
+            return IndexGroup(category: category, nodes: members)
+        }
+    }
+
+    /// Narrows the group to the query and reports whether anything survived.
+    @discardableResult
+    func applyFilter(_ query: String) -> Bool {
+        guard !query.isEmpty else {
+            nodes.forEach { $0.applyFilter("") }
+            visibleNodes = nodes
+            return true
+        }
+        visibleNodes = nodes.filter { $0.applyFilter(query) }
+        return !visibleNodes.isEmpty
+    }
+}
+
 /// One row in the index; children are loaded only when expanded.
 final class FolderNode {
     /// How many levels below the previewed folder may be opened.

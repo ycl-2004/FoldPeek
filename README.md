@@ -33,8 +33,8 @@
 
 Select a folder in Finder and press **Space**. FoldPeek replaces the
 plain folder preview with a bounded, expandable index and an inspector for text,
-code, Markdown, images, and file metadata. It stays inside Quick Look—there is
-no separate file-manager window to keep open.
+code, Markdown, PDF, Word documents, images, and file metadata. It stays inside
+Quick Look—there is no separate file-manager window to keep open.
 
 FoldPeek is intentionally narrow. It previews folders read-only, performs no
 network requests, launches no external tools, and stores no folder contents.
@@ -81,6 +81,10 @@ from project version `1.0 (build 1)` and verified with Xcode 26.6.
 - **Treat source as source.** Code uses a bounded, single-pass syntax scanner;
   Markdown uses an inert in-process renderer rather than HTML or a document
   engine.
+- **Never guess a document reader.** Word, RTF, and OpenDocument files name the
+  exact AppKit reader to use, so no file can steer itself into the HTML path.
+  Formats FoldPeek cannot read are drawn by Apple's own thumbnail service, out
+  of process, rather than parsed here.
 - **Keep hostile inputs bounded.** Directory enumeration, tree size, preview
   bytes, image dimensions, syntax coloring, and Markdown layout all have hard
   limits in code.
@@ -89,7 +93,13 @@ from project version `1.0 (build 1)` and verified with Xcode 26.6.
 
 **Folder index**
 
-- Lists non-hidden children with folders first and names sorted naturally.
+- Groups the folder's own contents by kind — folders, documents, sheets,
+  slides, images, video, audio, code, text, data, archives — each under a
+  headed rule in its own colour, with names sorted naturally inside the group.
+- Prints a legend strip of every group present, which doubles as a jump target
+  for reaching a group without scrolling to it.
+- Colours each row's extension chip by category, so a long list can be scanned
+  by kind without reading a filename.
 - Expands and collapses a folder from anywhere on its row.
 - Loads one level at a time, with a shared per-panel item budget and depth cap.
 - Shows symbolic links as entries but does not intentionally traverse them.
@@ -97,13 +107,24 @@ from project version `1.0 (build 1)` and verified with Xcode 26.6.
 
 **File inspector**
 
-- Shows kind, size, modification date, symbolic-link state, and path.
+- Shows kind, size, modification date, symbolic-link state, and path, with the
+  header badge carrying the item's category colour.
 - Previews bounded UTF-8 text in a non-editable `NSTextView`.
 - Adds line numbers, indentation guides, syntax colors, and bracket-depth colors
   for common source formats.
 - Lays out a safe Markdown subset: headings, lists, tables, quotes, emphasis,
   rules, and fenced code.
+- Scrolls multi-page PDFs through PDFKit, with link annotations disarmed so a
+  click never opens a browser.
+- Re-types Word (`.doc`, `.docx`), RTF, and OpenDocument text onto the paper
+  surface, keeping structure and dropping the document's own fonts and links.
 - Decodes supported images through ImageIO into a thumbnail capped at 2,048 px.
+- Recovers the first-page picture Pages, Keynote, Numbers, and some Office
+  files already carry inside them, read in process and without a document
+  parser.
+- Falls back to Apple's thumbnail service for everything else — PowerPoint,
+  legacy Office, Keynote files with no embedded picture — which needs one named
+  sandbox exception, described in the security notes.
 - Falls back to metadata for unsupported or non-regular files.
 
 **Paper interface**
@@ -123,7 +144,7 @@ Quick Look Extension
       │
       ├── bounded one-level directory enumeration
       ├── lazy expandable index + in-memory filter
-      └── capped text or ImageIO preview + metadata
+      └── capped text, Markdown, PDF, document, or image preview + metadata
 ```
 
 The extension registers only `public.folder` and `public.directory`. It holds
@@ -154,13 +175,22 @@ The current bounds are enforced in source:
 | Text read per file | 256 KB |
 | Image file accepted | 64 MB |
 | Decoded image edge | 2,048 px |
+| PDF file accepted | 512 MB |
+| Word/RTF/OpenDocument file accepted | 32 MB |
+| Characters laid out from a document | 400,000 |
+| System page render accepted | 512 MB |
+| System page render timeout | 8 s |
 | Characters syntax-colored | 200,000 |
 | Characters laid out as Markdown | 200,000 |
 
 Text stays inert: rich text, graphics import, data detectors, clickable links,
 and text attachments are disabled. Images are decoded through ImageIO at a
-bounded pixel size. Archives, HTML, SVG, PDF, media, subprocesses, external
-applications, and background helpers are outside this edition's scope.
+bounded pixel size. PDF pages are drawn by PDFKit with link annotations and data
+detectors turned off. Word, RTF, and OpenDocument files are read by AppKit with
+the document type stated rather than sniffed, and arrive stripped of their own
+links. Every other format is rendered by the system thumbnail service in Apple's
+process, never parsed here. Archives, HTML, SVG, subprocesses, external
+applications, and background helpers remain outside this edition's scope.
 
 See [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md) for the trust boundaries,
 enforced capabilities, verification checklist, and residual-risk notes.
@@ -289,8 +319,10 @@ together and state their signing and notarization status explicitly.
 - Search covers only nodes already loaded into the current preview panel.
 - Finder keeps ownership of arrow-key navigation while Quick Look is open.
 - The paper palette is intentionally light and does not follow Dark Mode.
-- Bounded text, Markdown, and supported raster images receive content previews.
-- Directory, tree, text, image, highlighting, and Markdown limits are fixed.
+- Bounded text, Markdown, PDF, word-processing documents, and supported raster
+  images receive content previews.
+- Directory, tree, text, image, document, PDF, highlighting, and Markdown limits
+  are fixed.
 - The Xcode project currently has no automated test target or CI workflow.
 
 ## License

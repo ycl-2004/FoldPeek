@@ -92,6 +92,41 @@ enum PaperTheme {
         static let gutterText = PaperTheme.ink.withAlphaComponent(0.28)
     }
 
+    // MARK: - Categories
+
+    /// One hue per file group.
+    ///
+    /// These are printing-ink colours, not screen colours: every one is held
+    /// between roughly 30% and 55% luminance so it stays legible on cream at
+    /// 8 pt, and chroma is kept low so a dozen of them stacked down one column
+    /// reads as an organised index rather than a paint chart. Folder denim,
+    /// document wine, and code steel are the existing brand roles reused, so
+    /// the palette does not introduce a second visual language.
+    enum Category {
+        static func color(for category: FileCategory) -> NSColor {
+            switch category {
+            case .folder: return PaperTheme.denim
+            case .symbolicLink: return srgb(0x8A, 0x86, 0x94)
+            case .document: return PaperTheme.wine
+            case .spreadsheet: return srgb(0x3F, 0x7D, 0x55)
+            case .presentation: return srgb(0xC0, 0x7A, 0x24)
+            case .image: return srgb(0x7A, 0x5E, 0xA8)
+            case .video: return srgb(0xA8, 0x46, 0x6F)
+            case .audio: return srgb(0x2A, 0x83, 0x86)
+            case .code: return srgb(0x37, 0x60, 0x7F)
+            case .text: return srgb(0x6B, 0x62, 0x50)
+            case .data: return srgb(0x86, 0x70, 0x2A)
+            case .archive: return srgb(0x7A, 0x6A, 0x5E)
+            case .other: return PaperTheme.inkSoft
+            }
+        }
+
+        /// The wash behind a type chip. Light enough that the ink on top of it
+        /// keeps its contrast, strong enough to read as a swatch.
+        static let chipFill: CGFloat = 0.11
+        static let chipStroke: CGFloat = 0.22
+    }
+
     // MARK: - Metrics
 
     /// Spacing of the preview card's paper grain.
