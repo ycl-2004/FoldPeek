@@ -1,6 +1,6 @@
 # FoldPeek security audit
 
-Audit date: 2026-08-29
+Audit date: 2026-08-31
 
 ## Scope
 
@@ -108,10 +108,23 @@ attributes, re-typed into the project's own faces, and has attachment sizes
 capped.
 
 Pages, Keynote, Numbers, and some Office files are ZIP containers that already
-store a rendered picture of their first page. `ContainerPreviewReader` locates
-that one entry by exact name, reads only its bytes, inflates at most one of
-them, and decodes it through ImageIO. It does not enumerate the archive, does
-not read any other entry, and never acts on a path stored inside the file.
+store a rendered picture of their first page. `ZipArchive` reads the container's
+central directory once, capping its size, its entry count, and every entry it
+records. `ContainerPreviewReader` then asks for that one picture by exact name
+and decodes it through ImageIO.
+
+A workbook is the one document kind the page image cannot serve: a twenty-sheet
+file has nineteen sheets no picture of the first will ever show. `WorkbookReader`
+therefore reads four entries by exact name — the workbook, its relationships,
+the shared string table, and one worksheet at a time — and turns cells into
+strings. No formula is evaluated, no relationship target is resolved as a
+filesystem path, and no cell's text is ever treated as markup.
+
+Both readers parse XML with `XMLScanner`, a forward-only scanner written for
+this purpose. It recognises elements, attributes, character data, CDATA, and the
+five predefined entities. It has no DTD support and defines no entities, so a
+declared entity is skipped rather than expanded and the expansion attacks a
+general parser must defend against have nothing here to work on.
 
 Every remaining format is handed to `QLThumbnailGenerator` as a URL. Only
 `.thumbnail` is requested, never an icon representation, so a generic document
@@ -137,7 +150,12 @@ along with the security property it would have cost.
 | System page render file | 512 MB |
 | System page render timeout | 8 s |
 | Container preview entry inflated | 32 MB |
-| Container central directory read | 4 MB |
+| Container central directory read | 8 MB |
+| Container entries recorded | 8,192 |
+| Workbook rows per sheet | 400 |
+| Workbook columns per row | 32 |
+| Workbook characters per cell | 240 |
+| Workbook shared strings | 200,000 |
 | Syntax-highlighted characters | 200,000 |
 | Markdown-rendered characters | 200,000 |
 
@@ -154,7 +172,10 @@ stay placeholders. HTML is not interpreted.
 The document and PDF surfaces hold the same line by a different means: they
 inherit clickable content from Apple's readers and then take it away — link
 attributes removed from the attributed string, link clicks swallowed in the PDF
-view. No preview path in this project opens a URL or launches an application.
+view. No path in this project opens a URL or launches an application. A
+sandboxed Quick Look extension cannot: both `NSExtensionContext.openURL` and
+`NSWorkspace.open` were measured returning false and launching nothing, the
+latter even with a LaunchServices mach-lookup exception in place.
 
 ## Packaging
 
@@ -179,9 +200,12 @@ explicit trust decision, which `INSTALL.md` states before showing the command.
   including third-party ones.
 - The mach-lookup exception is a hole in the sandbox, narrow but real: this
   extension may address one Apple service that a default app extension may not.
-- `ContainerPreviewReader` is a hand-written ZIP directory reader. It is
-  bounded and never enumerates entries, but it is parser code operating on
-  untrusted bytes.
+- `ZipArchive`, `XMLScanner`, and `WorkbookReader` are hand-written parsers
+  operating on untrusted bytes. Each is bounded on every dimension the file
+  controls, and the XML scanner cannot expand an entity by construction, but
+  they are parser code and carry a parser's risk.
+- Reading a workbook's sheets means enumerating the container's entry table,
+  which an earlier edition of this extension did not do.
 - A slow or remote volume can make an explicitly requested expansion pause.
 - Adversarial names can still impose bounded layout and comparison work.
 - The Markdown implementation is intentionally partial; unsupported syntax is

@@ -2,9 +2,9 @@
 
 ## Scope
 
-This edition has one responsibility: browse a folder's contents, read-only and bounded, from a Quick Look panel. That covers listing a directory, expanding a subfolder in place, and showing a capped plain-text or image preview of one selected file.
+This edition has one responsibility: browse a folder's contents, read-only and bounded, from a Quick Look panel. That covers listing a directory, expanding a subfolder in place, and showing a bounded preview of one selected file, including text, images, documents, PDFs, and supported spreadsheets.
 
-Features that require archive parsing, external tools, background execution, network access, active-content rendering, cross-container preferences, or external file launching are intentionally out of scope.
+Features that require external tools, background execution, network access, active-content rendering, cross-container preferences, or external file launching are intentionally out of scope. Archive parsing is limited to the bounded ZIP/XML readers used for supported Office previews and workbooks.
 
 ## Project layout
 
@@ -22,13 +22,18 @@ FoldPeekPreviewExtension/
   CodeHighlighter.swift                  Language table and single-pass token scanner
   CodeTextView.swift                     Indent guides and the line-number gutter
   MarkdownRenderer.swift                 Markdown block/inline scanner and typography
+  WorkbookBarView.swift                  Workbook page/table toggle and sheet tabs
+  WorkbookRenderer.swift                 Inert ruled-table rendering
   MetadataGridView.swift                 The inspector's two-column fact ledger
   FoldPeekPreviewExtension.entitlements  Sandboxed read-only access
   Info.plist                             Folder/directory UTTypes only
 Shared/
   IndexedEntry.swift                     Minimal metadata model
   DirectoryScanner.swift                 Bounded single-level enumeration
-  FilePreviewLoader.swift                Bounded text/image reading and type gating
+  FilePreviewLoader.swift                Bounded file reading and type gating
+  ZipArchive.swift                        Bounded ZIP directory and entry reader
+  XMLScanner.swift                        Forward-only XML token scanner
+  WorkbookReader.swift                    Bounded XLSX/XLSM sheet reader
 ```
 
 The Xcode project has no shell-script build phases and no Swift Package dependencies.
@@ -88,6 +93,14 @@ All limits live next to the code that enforces them:
 - `FilePreviewLoader.maximumImagePixelSize` — 2,048 px decoded
 - `CodeHighlighter.maximumHighlightCharacters` — 200,000 characters coloured
 - `MarkdownRenderer.maximumRenderCharacters` — 200,000 characters laid out
+- `RichDocumentReader.maximumCharacters` — 400,000 document characters laid out
+- `ZipArchive.maximumEntryBytes` — 32 MB inflated container entry
+- `ZipArchive.maximumDirectoryBytes` — 8 MB central directory
+- `ZipArchive.maximumEntryCount` — 8,192 recorded entries
+- `WorkbookReader.maximumRows` — 400 rows per sheet
+- `WorkbookReader.maximumColumns` — 32 columns per row
+- `WorkbookReader.maximumCellLength` — 240 characters per cell
+- `WorkbookReader.maximumSharedStrings` — 200,000 shared strings
 
 ## Verification
 

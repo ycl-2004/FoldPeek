@@ -122,6 +122,9 @@ from project version `1.0 (build 1)` and verified with Xcode 26.6.
 - Recovers the first-page picture Pages, Keynote, Numbers, and some Office
   files already carry inside them, read in process and without a document
   parser.
+- Reads an Excel workbook's sheets as ruled tables, with a tab per sheet and a
+  toggle between the page image and the data — a twenty-sheet file is nineteen
+  sheets more than any single picture of it can show.
 - Falls back to Apple's thumbnail service for everything else — PowerPoint,
   legacy Office, Keynote files with no embedded picture — which needs one named
   sandbox exception, described in the security notes.
@@ -178,6 +181,8 @@ The current bounds are enforced in source:
 | PDF file accepted | 512 MB |
 | Word/RTF/OpenDocument file accepted | 32 MB |
 | Characters laid out from a document | 400,000 |
+| Workbook rows per sheet | 400 |
+| Workbook columns per row | 32 |
 | System page render accepted | 512 MB |
 | System page render timeout | 8 s |
 | Characters syntax-colored | 200,000 |
@@ -188,9 +193,11 @@ and text attachments are disabled. Images are decoded through ImageIO at a
 bounded pixel size. PDF pages are drawn by PDFKit with link annotations and data
 detectors turned off. Word, RTF, and OpenDocument files are read by AppKit with
 the document type stated rather than sniffed, and arrive stripped of their own
-links. Every other format is rendered by the system thumbnail service in Apple's
-process, never parsed here. Archives, HTML, SVG, subprocesses, external
-applications, and background helpers remain outside this edition's scope.
+links. Supported Office containers are parsed only for bounded embedded previews
+and workbook sheets; every other format is rendered by the system thumbnail
+service in Apple's process, never parsed here. Standalone archive browsing,
+HTML, SVG, subprocesses, external applications, and background helpers remain
+outside this edition's scope.
 
 See [`docs/SECURITY_AUDIT.md`](docs/SECURITY_AUDIT.md) for the trust boundaries,
 enforced capabilities, verification checklist, and residual-risk notes.
@@ -295,8 +302,8 @@ register the extension, restart Finder, or download tools.
 ## Project layout
 
 - `FoldPeekApp/` — SwiftUI onboarding host, app entitlements, and visual assets.
-- `FoldPeekPreviewExtension/` — Quick Look controller, index UI, source/Markdown rendering, and inspector views.
-- `Shared/` — file metadata, bounded directory loading, and bounded file preview loading.
+- `FoldPeekPreviewExtension/` — Quick Look controller, index UI, source/Markdown/workbook rendering, and inspector views.
+- `Shared/` — file metadata, bounded directory loading, file preview loading, ZIP/XML helpers, and workbook reading.
 - `FoldPeek.xcodeproj/` — the two-target Xcode project.
 - `docs/DEVELOPMENT.md` — architecture, invariants, bounds, and verification guidance.
 - `docs/SECURITY_AUDIT.md` — current trust boundaries, limits, and residual risks.
@@ -319,10 +326,10 @@ together and state their signing and notarization status explicitly.
 - Search covers only nodes already loaded into the current preview panel.
 - Finder keeps ownership of arrow-key navigation while Quick Look is open.
 - The paper palette is intentionally light and does not follow Dark Mode.
-- Bounded text, Markdown, PDF, word-processing documents, and supported raster
-  images receive content previews.
-- Directory, tree, text, image, document, PDF, highlighting, and Markdown limits
-  are fixed.
+- Bounded text, Markdown, PDF, word-processing documents, supported raster
+  images, and supported XLSX/XLSM workbooks receive content previews.
+- Directory, tree, text, image, document, PDF, workbook, highlighting, and
+  Markdown limits are fixed.
 - The Xcode project currently has no automated test target or CI workflow.
 
 ## License

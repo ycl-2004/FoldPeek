@@ -13,6 +13,8 @@ enum FilePreviewContent {
     case pdf(PDFDocument, pageCount: Int)
     /// A single page drawn by the system for a format FoldPeek cannot read.
     case rendered(NSImage, note: String)
+    /// A spreadsheet: the page image when one exists, plus the sheets as text.
+    case workbook(Workbook, page: NSImage?, note: String?)
     case unavailable(String)
 }
 
@@ -99,17 +101,33 @@ enum FilePreviewLoader {
     /// file carries no such picture is the system thumbnail service asked —
     /// which is the path that fails when Quick Look's grant cannot be re-vended.
     private static func systemRendering(url: URL, probe: Probe) async -> FilePreviewContent {
+        var page: NSImage?
+        var note: String?
+
         if ContainerPreviewReader.handles(pathExtension: url.pathExtension) {
-            let embedded = await Task.detached(priority: .userInitiated) {
+            page = await Task.detached(priority: .userInitiated) {
                 ContainerPreviewReader.embeddedPreview(at: url)
             }.value
-            if let embedded {
-                return .rendered(embedded, note: "内嵌预览 · 首页")
+            if page != nil { note = "内嵌预览 · 首页" }
+        }
+        if page == nil, let image = await SystemPageRenderer.render(url: url, byteSize: probe.byteSize) {
+            page = image
+            note = "系统渲染 · 首页"
+        }
+
+        // A workbook's page image shows one sheet of however many it has, so
+        // the sheets are read as well and the pane offers both.
+        if WorkbookReader.handles(pathExtension: url.pathExtension) {
+            let workbook = await Task.detached(priority: .userInitiated) {
+                WorkbookReader.read(at: url)
+            }.value
+            if let workbook {
+                return .workbook(workbook, page: page, note: note)
             }
         }
 
-        if let image = await SystemPageRenderer.render(url: url, byteSize: probe.byteSize) {
-            return .rendered(image, note: "系统渲染 · 首页")
+        if let page, let note {
+            return .rendered(page, note: note)
         }
 
         PreviewLog.stage("allPathsFailed", outcome: url.pathExtension.lowercased())

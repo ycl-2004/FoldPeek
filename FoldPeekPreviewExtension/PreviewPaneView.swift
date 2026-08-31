@@ -18,6 +18,13 @@ final class PreviewPaneView: NSView {
     private let imageView = NSImageView()
     private let pdfView = PaperPDFView()
     private let renderedPage = RenderedPageView()
+    private let workbookBar = WorkbookBarView()
+
+    /// The workbook currently on screen, and how it is being looked at.
+    private var workbook: Workbook?
+    private var workbookPage: NSImage?
+    private var selectedSheet = 0
+    private var workbookMode: WorkbookBarView.Mode = .page
 
     override var isFlipped: Bool { true }
 
@@ -34,6 +41,7 @@ final class PreviewPaneView: NSView {
     // MARK: - States
 
     func showEmptySelection() {
+        clearWorkbook()
         titleLabel.stringValue = "未选择条目"
         badge.text = ""
         metaLabel.stringValue = "—"
@@ -42,6 +50,7 @@ final class PreviewPaneView: NSView {
     }
 
     func showFolder(_ item: IndexedEntry, childCount: Int?, isExpanded: Bool = false) {
+        clearWorkbook()
         titleLabel.stringValue = item.name
         badge.accent = FileCategory.of(item).color
         badge.text = item.isSymbolicLink ? "LINK" : "DIR"
@@ -72,6 +81,7 @@ final class PreviewPaneView: NSView {
     }
 
     func showFile(_ item: IndexedEntry, result: FilePreviewResult) {
+        clearWorkbook()
         let category = FileCategory.of(item)
         titleLabel.stringValue = item.name
         badge.text = Self.badgeText(for: item)
@@ -127,6 +137,17 @@ final class PreviewPaneView: NSView {
             renderedPage.image = image
             parts.append(note)
 
+        case let .workbook(book, page, note):
+            workbook = book
+            workbookPage = page
+            selectedSheet = 0
+            // The page image is the truer picture, so it leads when there is
+            // one; a workbook without it opens straight into the sheets.
+            workbookMode = page == nil ? .table : .page
+            showWorkbook()
+            parts.append("\(book.sheets.count) 个工作表")
+            if let note { parts.append(note) }
+
         case let .unavailable(reason):
             presentPlaceholder(symbol: "eye.slash", message: reason, tint: category.color)
         }
@@ -175,6 +196,49 @@ final class PreviewPaneView: NSView {
             lineRuler?.refresh(for: text as NSString)
         }
         textView.scroll(.zero)
+    }
+
+    // MARK: - Workbooks
+
+    /// Draws whichever half of the workbook the toggle is on, and keeps the bar
+    /// in step with it.
+    private func showWorkbook() {
+        guard let workbook else { return }
+
+        workbookBar.isHidden = false
+        workbookBar.update(
+            sheetNames: workbook.sheets.map(\.name),
+            selectedSheet: selectedSheet,
+            mode: workbookMode,
+            hasPage: workbookPage != nil
+        )
+
+        switch workbookMode {
+        case .page:
+            setVisibleContent(.rendered)
+            renderedPage.image = workbookPage
+        case .table:
+            setVisibleContent(.text)
+            // A table is source, not prose: it keeps the full width, because a
+            // reading measure would wrap columns that must stay in line.
+            setProseMode(false)
+            let sheet = workbook.sheets[min(selectedSheet, workbook.sheets.count - 1)]
+            textView.textStorage?.setAttributedString(WorkbookRenderer.render(sheet))
+            textView.refreshCodeMetrics()
+            lineRuler?.refresh(for: "" as NSString)
+            textScrollView.rulersVisible = false
+            textView.drawsIndentGuides = false
+            card.drawsGrain = false
+            textView.scroll(.zero)
+        }
+    }
+
+    private func clearWorkbook() {
+        workbook = nil
+        workbookPage = nil
+        selectedSheet = 0
+        workbookMode = .page
+        workbookBar.isHidden = true
     }
 
     /// A document that arrived already typeset — Word, RTF, OpenDocument —
@@ -257,6 +321,7 @@ final class PreviewPaneView: NSView {
         configurePlaceholder()
         configureTextView()
         configureImageView()
+        configureWorkbookBar()
         pdfView.translatesAutoresizingMaskIntoConstraints = false
         renderedPage.translatesAutoresizingMaskIntoConstraints = false
 
@@ -269,6 +334,7 @@ final class PreviewPaneView: NSView {
         addSubview(titleLabel)
         addSubview(badge)
         addSubview(metaLabel)
+        addSubview(workbookBar)
         addSubview(card)
         addSubview(metadata)
 
@@ -284,7 +350,11 @@ final class PreviewPaneView: NSView {
             metaLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             metaLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
 
-            card.topAnchor.constraint(equalTo: metaLabel.bottomAnchor, constant: 18),
+            workbookBar.topAnchor.constraint(equalTo: metaLabel.bottomAnchor, constant: 18),
+            workbookBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
+            workbookBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
+
+            card.topAnchor.constraint(equalTo: workbookBar.bottomAnchor, constant: 0),
             card.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
             card.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
 
@@ -360,6 +430,26 @@ final class PreviewPaneView: NSView {
         textScrollView.rulersVisible = true
         textScrollView.verticalRulerView = ruler
         lineRuler = ruler
+    }
+
+    private func configureWorkbookBar() {
+        workbookBar.translatesAutoresizingMaskIntoConstraints = false
+        workbookBar.isHidden = true
+        workbookBar.onSelectMode = { [weak self] mode in
+            guard let self, self.workbook != nil else { return }
+            self.workbookMode = mode
+            self.showWorkbook()
+        }
+        workbookBar.onSelectSheet = { [weak self] index in
+            guard let self, let workbook = self.workbook,
+                  index < workbook.sheets.count
+            else { return }
+            self.selectedSheet = index
+            // Choosing a sheet is a request to see that sheet, so it also
+            // switches away from the page image.
+            self.workbookMode = .table
+            self.showWorkbook()
+        }
     }
 
     private func configureImageView() {
