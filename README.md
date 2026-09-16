@@ -29,6 +29,8 @@
   <a href="#build-from-source">Build from source</a>
   ·
   <a href="#license">License</a>
+  ·
+  <a href="README.zh-TW.md">繁體中文</a>
 </p>
 
 Select a folder in Finder and press **Space**. FoldPeek replaces the
